@@ -1,0 +1,2 @@
+-keep class im.zoe.labs.flutter_notification_listener.** { *; }
+-keep public class * extends android.service.notification.NotificationListenerService
