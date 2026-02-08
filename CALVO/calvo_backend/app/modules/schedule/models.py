@@ -16,7 +16,7 @@ class Schedule(Base):
     
     title = Column(String)
     start_time = Column(DateTime)
-    
+    end_time = Column(DateTime, nullable=True)
     # Flag to differentiate AI-created events vs Manual ones
     is_auto_generated = Column(Boolean, default=True)
     
