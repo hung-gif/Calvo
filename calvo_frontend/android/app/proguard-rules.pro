@@ -1,0 +1,6 @@
+-keep class im.zoe.labs.flutter_notification_listener.** { *; }
+-keep interface im.zoe.labs.flutter_notification_listener.** { *; }
+-keep public class * extends android.service.notification.NotificationListenerService
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
