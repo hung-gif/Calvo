@@ -10,11 +10,13 @@ class NotificationLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, index=True)                     # NOTE
     source_app = Column(String)
+    priority = Column(Integer, default=3)
     raw_content = Column(Text)
     summary = Column(String)
     category = Column(String) # FINANCE, SCHEDULE, IMPORTANT, TRASH
     received_at = Column(DateTime, default=datetime.now)
     is_included_in_briefing = Column(Boolean, default=False)
+    is_risk = Column(Boolean, default=False)
 
 class DailyBriefing(Base):
     __tablename__ = "daily_briefings"
