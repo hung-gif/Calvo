@@ -16,19 +16,25 @@ def extract_schedule_data(content: str):
     Parses text to find event details.
     """
     print(f"   [Strategist Agent] Analyzing time: {content[:50]}...") # BREAKPOINT
-    
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-    
+    current_time = datetime.now()
     system_prompt = f"""
     Role: Expert Scheduler.
-    Task: Extract event title and start time.
-    Context: Current time is {current_time}.
-    
-    Rules:
-    1. Extract 'event_title' (Keep it short).
-    2. Extract 'start_time' in strict format: 'YYYY-MM-DD HH:MM'.
-    3. If year is missing, assume current year or next year logic.
-    4. Output JSON: {{ "event_title": string, "start_time": string }}
+    Task: Extract event title, event start time, and event end time from the given text.
+    Current Date: {current_time.strftime("%Y-%m-%d")}
+    Current Time: {current_time.strftime("%H:%M:%S")}
+
+    Guidelines for Relative Time Extraction:
+        1. Reference Point: Use the "Current Time" provided above as the baseline for all relative expressions (e.g., "in 2 hours", "next hour").
+        2. Contextual Parsing:
+        - "x h tối": Interpret as X:00 of the current or next logical day.
+        - "X tiếng nữa": Calculate by adding X hours to the "Current Time".
+        - "Sáng/Chiều/Tối": If the user doesn't specify AM/PM, use context (e.g., "9h" in the morning vs "9h tối").
+        3. Output Format: Strictly return a JSON object with keys: 
+        {{
+        "event_title": summary of the event",
+        "start_time": "YYYY-MM-DD HH:mm",
+        "end_time": "YYYY-MM-DD HH:mm"
+        }}
     """
     
     try:
@@ -39,9 +45,9 @@ def extract_schedule_data(content: str):
                 {"role": "user", "content": content}
             ],
             response_format={"type": "json_object"},
-            temperature=0.1
+            temperature=0.5
         )
         return json.loads(response.choices[0].message.content)
     except Exception as e:
         print(f"   [Strategist Agent] Error: {e}")
-        return {"event_title": None, "start_time": None}
+        return {"event_title": None, "start_time": None, "end_time": None}
