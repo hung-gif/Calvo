@@ -14,7 +14,6 @@ from app.modules.schedule import agent as strategist_agent, services as schedule
 import traceback
 
 from app.modules.gatekeeper.agent import get_real_app_name
-from calvo_backend.noti_to_csv.noti_to_csv import save_noti_to_csv_file
 
 
 router = APIRouter()
@@ -119,3 +118,4 @@ async def receive_notification(req: schemas.WebhookRequest, db: Session = Depend
         "finance_data": finance_result if category == "FINANCE" else None,
         "schedule_data": schedule_result if category == "SCHEDULE" else None
     }
+
