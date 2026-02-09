@@ -9,37 +9,29 @@ from opik import track
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.modules.gatekeeper import models as gk_models
+from app.modules.mobile.agent import generate_mobile_briefing
+from app.modules.mobile.schemas import FrontendNotificationTrigger, MobileBriefingRequest
 
 router = APIRouter()
 
-@router.get("/briefing")
+@router.post("/briefing", response_model=MobileBriefingRequest)
 @track(name="Mobile Fetch Briefing")
-def fetch_briefing(
-    db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user)
+async def fetch_briefing(req: FrontendNotificationTrigger,
+    db: Session = Depends(get_db)
 ):
-    logs = db.query(gk_models.NotificationLog).filter(
-        gk_models.NotificationLog.user_id == user_id,
-        gk_models.NotificationLog.is_included_in_briefing == False,
-        gk_models.NotificationLog.category != "TRASH"
-    ).order_by(gk_models.NotificationLog.received_at.desc()).all()
+    briefing = db.query(gk_models.DailyBriefing).filter(
+        gk_models.DailyBriefing.user_id == req.user_id
+    ).order_by(gk_models.DailyBriefing.created_at.desc()).first()
 
-    if not logs:
-        return {"success": True, "data": {"briefing": "No new updates."}}
+    report = generate_mobile_briefing(db, req.user_id)
 
-    briefing = "\n".join([f"- {log.summary}" for log in logs])
-
-    for log in logs:
-        log.is_included_in_briefing = True
-
-    db.commit()
+    if not briefing:
+        return {
+            "report": report.get("report") if report else "No briefing available."
+        }
 
     return {
-        "success": True,
-        "data": {
-            "briefing": briefing,
-            "items": len(logs)
-        }
+        "report": briefing.content
     }
 
 
@@ -65,3 +57,4 @@ def fetch_alerts(
             } for a in alerts
         ]
     }
+

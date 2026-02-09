@@ -7,3 +7,5 @@ python-dotenv
 openai
 opik
 requests
+python-jose[cryptography]
+passlib[bcrypt]
